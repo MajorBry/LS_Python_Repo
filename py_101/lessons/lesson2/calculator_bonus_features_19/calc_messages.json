@@ -1,0 +1,37 @@
+{
+    "en": {
+        "1st number": "What's the first number?",
+        "invalid": "Invalid number.",
+        "2nd number": "What's the second number?",
+        "what operation": "What operation would you like to perform?\n1) Add 2) Subtract 3) Multipy 4) Divide",
+        "choose 1, 2, 3, 4": "You must choose 1, 2, 3, or 4",
+        "result is": "The result is: ",
+        "welcome": "Welcome to Calculator!",
+        "again?": "Would you like to perform another calculation?",
+        "yes_list": ["yes", "yeah", "sure", "y"]
+    },
+
+    "es": {
+        "1st number": "¿Cual es el primer numero?",
+        "invalid": "Número inválido.",
+        "2nd number": "¿Cuál es el segundo número?",
+        "what operation": "¿Qué operación le gustaría realizar?\n1) Sumar 2) Restar 3) Multiplicar 4) Dividir",
+        "choose 1, 2, 3, 4": "Debes elegir 1, 2, 3, o 4",
+        "result is": "El resultado es: ",
+        "welcome": "¡Bienvenido a Calculadora!",
+        "again?": "¿Quieres realizar otro cálculo?",
+        "yes_list": ["yes", "si", "s"]
+    },
+
+    "pt": {
+        "1st number": "Qual é o primeiro número?",
+        "invalid": "Número inválido.",
+        "2nd number": "Qual é o segundo número?",
+        "what operation": "Que operação você gostaria de realizar?\n1) Adicionar 2) Subtrair 3) Multiplicar 4) Dividir",
+        "choose 1, 2, 3, 4": "Você deve escolher 1, 2, 3 ou 4",
+        "result is": "O resultado é: ",
+        "welcome": "Bem-vindo à Calculadora!",
+        "again?": "Gostaria de realizar outro cálculo?",
+        "yes_list": ["yes", "sim", "s"]
+    }
+}
