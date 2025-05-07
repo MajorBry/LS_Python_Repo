@@ -1,6 +1,6 @@
 import json
 
-LANGUAGE = 'en'
+LANGUAGE = 'es'
 
 # Open the JSON file for reading
 with open('/home/bry/my_linux_files/LS_Python_Repo/py_101/lessons/lesson2/calculator_bonus_features_19/calc_messages.json', 'r') as file:
