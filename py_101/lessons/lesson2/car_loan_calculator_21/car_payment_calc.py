@@ -1,3 +1,5 @@
+PERCENT_CONVERSION = 0.01
+
 MESSAGES = {
     'press enter': '*Press "Enter" to accept current value, or input another value.',
     'amount': 'Loan amount: $',
@@ -12,7 +14,7 @@ MESSAGES = {
     'payment is': 'Your monthly payment is ',
     'welcome': 'Welcome to the Monthly Car Payment Calculator!',
     'decision': 'yes',
-    'decision list': ['yes', 'yeah', 'y'],
+    'decision tuple': ('yes', 'yeah', 'y'),
     'again?': 'Would you like to perform another car payment calculation?',
 }
 
@@ -95,7 +97,7 @@ def car_payment(defaults=None):
     # n = loan duration in months
     # 
     # ↓ Monthly Payment
-    payment = round(float(principal) * (mpr/100 / (1 - (1 + mpr/100)**(-int(months)))), ndigits=2)
+    payment = round(float(principal) * (mpr*PERCENT_CONVERSION / (1 - (1 + mpr*PERCENT_CONVERSION)**(-int(months)))), ndigits=2)
 
     # Print result
     prompt(f'{MESSAGES['payment is']}{payment:.2f}')
@@ -108,7 +110,7 @@ prompt(MESSAGES['welcome'])
 decision = MESSAGES['decision']
 default_vals = None
 # ↓ Loop to run the payment calculator as many times as the user wants.  Uses values from previous iteration, unless overridden by user input.
-while decision.casefold() in MESSAGES['decision list']:
+while decision.casefold() in MESSAGES['decision tuple']:
     default_vals = car_payment(default_vals)
     prompt(MESSAGES['again?'])
     decision = input()
