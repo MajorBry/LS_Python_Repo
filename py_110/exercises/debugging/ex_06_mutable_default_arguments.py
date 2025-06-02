@@ -1,6 +1,7 @@
 def append_to_list(value, lst=None):
-    if not lst:
+    if lst is None:
         lst = []
+    
     lst.append(value)
     return lst
 
