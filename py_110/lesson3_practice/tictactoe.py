@@ -12,7 +12,7 @@ DISPLAY_MARKS = (
 SQUARE_HORIZONTAL_LINES = 3
 SQUARE_VERTICAL_LINES = 1
 DISPLAY_VERTICAL_LINES = SQUARE_VERTICAL_LINES*3 + 2
-WIN_GOAL =  5
+WIN_GOAL =  2
 WIN_MOVES = frozenset({frozenset({'A1', 'B1', 'C1'}),
                       frozenset({'A2', 'B2', 'C2'}),
                       frozenset({'A3', 'B3', 'C3'}),
@@ -41,6 +41,8 @@ def clear_display():
 
 def update_display(spaces, score):
     clear_display()
+    print(f"Score to Win Match: {WIN_GOAL}")
+    print(DISPLAY_MARKS[1]*21)
     print(f"  Player Score ({DISPLAY_MARKS[4]}): {score[DISPLAY_MARKS[4]]}\nComputer Score ({DISPLAY_MARKS[5]}): {score[DISPLAY_MARKS[5]]}\n")
     print('   1   2   3')
     print(f'A  {spaces['A1']} {DISPLAY_MARKS[0]} {spaces['A2']} {DISPLAY_MARKS[0]} {spaces['A3']} ')
@@ -50,13 +52,28 @@ def update_display(spaces, score):
     print(f'C  {spaces['C1']} {DISPLAY_MARKS[0]} {spaces['C2']} {DISPLAY_MARKS[0]} {spaces['C3']} ')
     print('')
 
+def join_or(lst, delimiter=', ', list_conjunction='or'):
+    lst = [str(element) for element in lst]
+
+    if len(lst) > 1:
+        if len(lst) > 2:
+            lst = [lst[i // 2] if i % 2 == 0 else delimiter for i in range(len(lst)*2)]
+            lst.pop()
+            lst.insert(-1, list_conjunction + ' ')
+        else:
+            lst.insert(-1, ' ' + list_conjunction + ' ')
+    return ''.join(lst)
+
 def get_user_move(options):
+    available_choices = [option for option, val in options.items() if val == DISPLAY_MARKS[3]]
+    
     while True:
         user_move = input("What's your move (e.g. 'A1')? ").upper()
-        if user_move in options and options[user_move] == DISPLAY_MARKS[3]:
+        if user_move in available_choices:
             return user_move
         else:
             prompt('Invalid move.')
+            prompt('Choose from: ' + join_or(available_choices))
 
 """
 Problem:  create a function that determines if there is an imminent threat.
@@ -85,8 +102,6 @@ Algorithm
 Implementation by Code
     - intersection (&) finds where two sets have common elements and returns those.  If the length of the resultant set is 2, AND if the last member is not occupied, the computer should be directed to move there
 """
-
-
 def smart_comp_move(board):
     comp_moves = {move for move, val in board.items() if val == DISPLAY_MARKS[5]}
     for subset in WIN_MOVES:
@@ -210,9 +225,11 @@ def get_first_move():
 # Initialize display
 score = initialize_score()
 
-first_move_pick = FIRST_MOVE_TUPLE[2]
+first_move_pick = FIRST_MOVE_TUPLE[0]
 if first_move_pick == FIRST_MOVE_TUPLE[2]:
-        first_move = get_first_move()
+    first_move = get_first_move()
+else:
+    first_move = first_move_pick
 
 while True:
     board = initialize_board()
