@@ -131,6 +131,8 @@ DISPLAY_MARKS = (
 
 FLOW_COMMANDS = ('continue', 'restart', 'end')
 
+WINS_FOR_MATCH = 3
+
 PEAK_SCORE = 21
 ACE_MODIFIER = 10
 DEALER_MIN_SCORE = 17 # ← Dealer will continue to hit until they reach or exceed this number
@@ -175,7 +177,7 @@ def update_display(game_state):
     num_player_hand = len(player_hand)
 
     print('')
-    print('- Dealer -'.center(num_dealer_hand*(CARD_WIDTH + 5)))
+    print(f'- Dealer ({game_state['match points']['dealer']} wins) -'.center(num_dealer_hand*(CARD_WIDTH + 5)))
     print((CARD_TOP_LINES)*num_dealer_hand)
     skip = True
     for card_name in dealer_hand:
@@ -206,7 +208,7 @@ def update_display(game_state):
     print((CARD_BOTTOM_LINES)*num_dealer_hand)
     print('')
 
-    print('- Player -'.center(num_dealer_hand*(CARD_WIDTH + 5)))
+    print(f'- Player ({game_state['match points']['player']} wins) -'.center(num_dealer_hand*(CARD_WIDTH + 5)))
     print((CARD_TOP_LINES)*num_player_hand)
     for card_name in player_hand:
         print(TOP_BLANK_LINE.replace(DISPLAY_MARKS[11], card_name[-1]),end='')
@@ -260,10 +262,15 @@ def get_player_move(game_state):
             update_display(game_state)
             print(f"You drew the {card_name(new_card)}.")
 
-            if busted(player_hand):
+            if is_busted(player_hand):
+                game_state['match points']['dealer'] += 1
+                update_display(game_state)
+                print(f"You drew the {card_name(new_card)}.")
                 print("You bust!")
-                print('Dealer wins!')
-
+                if game_state['match points']['dealer'] > 2:
+                    print('Dealer wins the match! better luck next time!')
+                else:
+                    print('Dealer wins!')
                 play_again(game_state)
                 return
         elif answer in {'s', 'stay'}:
@@ -292,13 +299,23 @@ def get_dealer_move(game_state):
         # ↓ Check for winner dealer's score is > or == player's
         if dealer_score >= DEALER_MIN_SCORE:
             if dealer_score > player_score:
-                print('Dealer wins!')
+                game_state['match points']['dealer'] += 1
+                update_display(game_state)
+                if game_state['match points']['dealer'] > 2:
+                    print('Dealer wins the match! better luck next time!')
+                else:
+                    print('Dealer wins!')
                 play_again(game_state)
             elif dealer_score == player_score:
                 print('Tie game!')
                 play_again(game_state)
             else:
-                print('Player wins!')
+                game_state['match points']['player'] += 1
+                update_display(game_state)
+                if game_state['match points']['player'] > 2:
+                    print('Congratulations! You win the match!')
+                else:
+                    print('You win!')
                 play_again(game_state)
             return
 
@@ -310,14 +327,18 @@ def get_dealer_move(game_state):
         print("Dealer's Turn".center(30,) + "\n")
         print(f"Dealer drew the {card_name(new_card)}.")
 
-        if busted(dealer_hand):
+        if is_busted(dealer_hand):
+            game_state['match points']['player'] += 1
+            update_display(game_state)
             print("Dealer busts!")
-            print('You win!')
-
+            if game_state['match points']['player'] > 2:
+                print('Congratulations! You win the match!')
+            else:
+                print('You win!')
             play_again(game_state)
             return
 
-def busted(cards):
+def is_busted(cards):
     score = calculate_score(cards)
     return score > PEAK_SCORE
 
@@ -340,6 +361,9 @@ def player_input(game_state, message=''):
 
     if answer.casefold() in {'rules', 'r'}:
         show_rules(game_state)
+
+    if answer.casefold() in {'quit', 'exit'}:
+        quit()
 
     return answer
 
@@ -366,15 +390,22 @@ def show_rules(game_state):
 
 # ↓ Contains deck, player hand, dealer hand, etc.
 
-def initialize_game_state():
+def initialize_game_state(match_points=None):
+    if match_points == None:
+        match_points = {
+            'player': 0,
+            'dealer': 0,
+        }
+
     game_state = {
               'deck': initialize_deck(),
-              'dealer hand':{},
-              'player hand':{},
-              'flow state':{
+              'dealer hand': {},
+              'player hand': {},
+              'flow state': {
                   'turn': 'player',
                   'command': FLOW_COMMANDS[0],
               },
+              'match points': match_points
               }
     return game_state
 
@@ -384,23 +415,34 @@ prompt("Welcome to the game of 21!\nFeel free to review the rules at any time du
 game_state = initialize_game_state()
 answer = wait(game_state)
 
-# ↓ Main game loop
 while True:
-    game_state = initialize_game_state()
-    deck = game_state['deck']
-    dealer_hand = game_state['dealer hand']
-    player_hand = game_state['player hand']
-    flow = game_state['flow state']
+    match_points = None
 
-    dealer_hand |= draw_cards(deck, 2)
+    # ↓ Main game loop
+    while True:
+        game_state = initialize_game_state(match_points)
+        match_points = game_state['match points']
+        deck = game_state['deck']
+        dealer_hand = game_state['dealer hand']
+        player_hand = game_state['player hand']
+        flow = game_state['flow state']
 
-    player_hand |= draw_cards(deck, 2)
+        dealer_hand |= draw_cards(deck, 2)
 
-    update_display(game_state)
-    get_player_move(game_state) # ← display state command will be 'restart', 'end', or 'continue' after this line
-    if flow['command'] == FLOW_COMMANDS[0]:
+        player_hand |= draw_cards(deck, 2)
+
         update_display(game_state)
-        get_dealer_move(game_state)
+        get_player_move(game_state) # ← display state command will be 'restart', 'end', or 'continue' after this line
+
+        if flow['command'] == FLOW_COMMANDS[0]:
+            update_display(game_state)
+            get_dealer_move(game_state)
+
+        if flow['command'] == FLOW_COMMANDS[2]:
+            break
+
+        if WINS_FOR_MATCH in match_points.values():
+            break
 
     if flow['command'] == FLOW_COMMANDS[2]:
         break
