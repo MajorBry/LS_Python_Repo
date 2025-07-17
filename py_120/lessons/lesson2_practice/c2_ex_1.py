@@ -1,0 +1,1 @@
+# Person class needs to take string as name.
